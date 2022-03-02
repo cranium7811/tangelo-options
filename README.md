@@ -10,3 +10,8 @@ A very basic contract to create covered calls on NFTs by there owner.
  - Create a dynamic options market
  - Floor prices of the tokens
  - Volatility  
+
+
+# Disclaimer
+
+Very early stage and not tested, so please don't use it. 
