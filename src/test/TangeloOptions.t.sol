@@ -29,4 +29,8 @@ contract ContractTest is DSTest {
         assertEq(mock.ownerOf(1), address(option));
     }
 
+    function test_purchaseOption() public {
+        
+    }
+
 }
