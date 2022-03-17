@@ -9,11 +9,11 @@ contract MockERC721 is ERC721{
 
     function tokenURI(uint256) public pure virtual override returns (string memory) {}
 
-    function mintMock(address to, uint id) public {
+    function mint(address to, uint id) public {
         _mint(to, id);
     }
 
-    function burnMock(uint id) public {
+    function burn(uint id) public {
         _burn(id);
     }
 }

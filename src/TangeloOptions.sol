@@ -54,8 +54,6 @@ contract TangeloOptions is ERC721TokenReceiver{
         ERC721 collectionAddress = ERC721(_collectionAddress);
         require(collectionAddress.ownerOf(_id) == msg.sender, "NOT_OWNER");
 
-        collectionAddress.approve(address(this), _id);
-
         collectionAddress.safeTransferFrom(msg.sender, address(this), _id);
         
         tokenActualOwner[_collectionAddress][_id] = msg.sender;
