@@ -50,6 +50,7 @@ contract TangeloOptions is ERC721TokenReceiver{
     /* -------------- Custom Errors ---------------------*/
 
     error NotOwnerOfToken();
+    error NotEnoughPremium();
 
 
     /* ------------- Public functions -------------------*/
@@ -66,17 +67,19 @@ contract TangeloOptions is ERC721TokenReceiver{
         emit TokenDeposited(msg.sender, address(this), _collectionAddress, _id);
     }
 
-    function puchaseOption(address _collectionAddress, uint _id) public {
+    function puchaseOption(address _collectionAddress, uint _id) payable public {
 
         address owner = tokenActualOwner[_collectionAddress][_id];
 
         uint premiumPrice = _getPremiumPrice();
 
+        if(msg.value < premiumPrice) revert NotEnoughPremium();
+
         // option buyer state changes
         optionBuyerToken[_collectionAddress][_id] = msg.sender;
 
         // Transfer straight to the seller of the option 
-        payable(owner).transfer(premiumPrice);    
+        payable(owner).transfer(msg.value);    
 
         emit OptionPurchased(msg.sender, owner, _collectionAddress, _id);
 
