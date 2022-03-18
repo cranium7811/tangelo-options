@@ -21,11 +21,10 @@ contract ContractTest is DSTest {
 
     function test_depositToken() public {
 
-        vm.prank(address(0x1337));
+        vm.startPrank(address(0x1337));
         mock.approve(address(option), 1);
-
-        vm.prank(address(0xBEEF));
         option.depositToken(address(mock), 1);
+        vm.stopPrank();
 
         assertEq(option.tokenActualOwner(address(mock), 1), address(0x1337));
         assertEq(mock.ownerOf(1), address(option));
