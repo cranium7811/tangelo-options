@@ -47,16 +47,21 @@ contract TangeloOptions is ERC721TokenReceiver{
         return this.onERC721Received.selector;
     }
 
+    /* -------------- Custom Errors ---------------------*/
+
+    error NotOwnerOfToken();
+
 
     /* ------------- Public functions -------------------*/
 
     function depositToken(address _collectionAddress, uint _id) public optionSeller {
         ERC721 collectionAddress = ERC721(_collectionAddress);
-        require(collectionAddress.ownerOf(_id) == msg.sender, "NOT_OWNER");
+        // require(collectionAddress.ownerOf(_id) == msg.sender, "NOT_OWNER");
+        if(collectionAddress.ownerOf(_id) != msg.sender) revert NotOwnerOfToken();
+
+        tokenActualOwner[_collectionAddress][_id] = msg.sender;
 
         collectionAddress.safeTransferFrom(msg.sender, address(this), _id);
-        
-        tokenActualOwner[_collectionAddress][_id] = msg.sender;
 
         emit TokenDeposited(msg.sender, address(this), _collectionAddress, _id);
     }
@@ -67,15 +72,11 @@ contract TangeloOptions is ERC721TokenReceiver{
 
         uint premiumPrice = _getPremiumPrice();
 
-        unchecked {
+        // option buyer state changes
+        optionBuyerToken[_collectionAddress][_id] = msg.sender;
 
-            // Transfer straight to the seller of the option 
-            payable(owner).transfer(premiumPrice);
-            
-            // option buyer state changes
-            optionBuyerToken[_collectionAddress][_id] = msg.sender;
-
-        }
+        // Transfer straight to the seller of the option 
+        payable(owner).transfer(premiumPrice);    
 
         emit OptionPurchased(msg.sender, owner, _collectionAddress, _id);
 
@@ -96,20 +97,15 @@ contract TangeloOptions is ERC721TokenReceiver{
 
         require(block.timestamp > expiryDate, "NOT_EXPIRED");
         require(floorPrice >= strikePrice);
-
-        unchecked {
             
-            // transfer the floorPrice to the owner of the token
-            payable(owner).transfer(floorPrice);
+        // option buyer state changes
+        optionBuyerToken[_collectionAddress][_id] = address(0);
 
-            // transfer the NFT to the option buyer exercising the option
-            collectionAddress.safeTransferFrom(owner, msg.sender, _id);
+        // transfer the floorPrice to the owner of the token
+        payable(owner).transfer(floorPrice);
 
-            // option buyer state changes
-            optionBuyerToken[_collectionAddress][_id] = address(0);
-
-        }
-
+        // transfer the NFT to the option buyer exercising the option
+        collectionAddress.safeTransferFrom(owner, msg.sender, _id);
 
         emit OptionExercised(msg.sender, owner, _collectionAddress, _id);
 
